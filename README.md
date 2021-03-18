@@ -121,7 +121,7 @@ _Requires:_ `UInt` shall be an unsigned integer type.
 
 _Returns:_ The sum of `i` and `j` possibly represented as a big endian sequence of `UInt` words. The return type of (2) and (3) is `std::array<UInt, N + 1>` if `N` is not `0`, `std::array<UInt, N>` otherwise. The return type of (4) is `std::array<UInt, MAX(M, N) + 1>` if neither `M` nor `N` is `0`, `std::array<UInt, MAX(M, N)>` if only one of `M` and `N` is `0`, `UInt` otherwise.
 
-_Remark:_ (1) shall not participate overload resolution unless `UInt` is an integer type.
+_Remark:_ (1) shall not participate in overload resolution unless `UInt` is an integer type.
 
 #### Multiplication
 
@@ -141,7 +141,7 @@ _Requires:_ `UInt` shall be an unsigned integer type.
 
 _Returns:_ The product of `i` and `j` possibly represented as a big endian sequence of `UInt` words. The return type of (2) and (3) is `std::array<UInt, N + 1>` if `N` is not `0`, `UInt` otherwise. The return type of (4) is `std::array<UInt, M + N>` if neither `M` nor `N` is `0`, `UInt` otherwise.
 
-_Remark:_ (1) shall not participate overload resolution unless `UInt` is an integer type.
+_Remark:_ (1) shall not participate in overload resolution unless `UInt` is an integer type.
 
 ## For developers
 
