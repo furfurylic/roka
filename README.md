@@ -146,5 +146,5 @@ _Remark:_ (1) shall not participate in overload resolution unless `UInt` is an i
 ## For developers
 
 Roka has a small test in `src_test` directory.
-The test can be built with `cmake` with `CMakeLists.txt` is that directory.
+The test can be built with `cmake -S . -B build -DROKA_BUILD_TESTS=1` in the root directory.
 No testing frameworks are employed.
