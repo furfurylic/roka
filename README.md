@@ -3,7 +3,7 @@
 ## Overview
 
 Roka is a very small header-only implementation of addition and multiplication of multi-word unsigned integers in C++17.
-It is tested on gcc 7.3 and Visual Studio 2019.
+It is tested on gcc 7.3, Clang 7.0 and Visual Studio 2019.
 It is available under [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/deed).
 
 In Roka, multi-word integeral values are represented as an instance of `std::array<T, N>` where `T` is an unsigned integer type and `N` is the count of the words.
