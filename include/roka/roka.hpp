@@ -26,9 +26,9 @@ constexpr auto clip_impl2(
         const BackTuple& backs, std::index_sequence<BackIs...>)
     noexcept(std::is_nothrow_copy_constructible_v<T>)
 {
-    constexpr std::size_t length =
+    constexpr std::size_t Length =
         sizeof...(FrontIs) + sizeof...(Is) + sizeof...(BackIs);
-    return std::array<T, length> { std::get<FrontIs>(fronts)...,
+    return std::array<T, Length> { std::get<FrontIs>(fronts)...,
                                    a[Offset + Is]...,
                                    std::get<BackIs>(backs)... };
 }
@@ -70,46 +70,49 @@ constexpr auto clip(const std::array<T, N>& a, T back)
                         std::make_tuple(back));
 }
 
-template <class UInt, std::size_t digits>
+// Makes an unsigned integer value whose specified last bits are 1
+// and the remainders are 0
+template <class UInt, std::size_t Digits>
 constexpr UInt fill() noexcept
 {
     static_assert(std::is_unsigned_v<UInt>);
     UInt n = 0;
-    for (std::size_t i = 0; i < digits; ++i) {
+    for (std::size_t i = 0; i < Digits; ++i) {
         n <<= 1;
         n |= 1;
     }
     return n;
 }
 
+// Splits an unsigned integer value into the first half and the latter one
 template <class UInt>
 constexpr std::tuple<UInt, UInt> hilo(UInt n) noexcept
 {
     static_assert(std::is_unsigned_v<UInt>);
-    constexpr std::size_t digits = std::numeric_limits<UInt>::digits;
-    constexpr std::size_t half_digits = digits / 2;
-    static_assert(half_digits * 2 == digits);
-    const UInt h = n >> half_digits;
-    constexpr UInt l_mask = fill<UInt, half_digits>();
+    constexpr std::size_t Digits = std::numeric_limits<UInt>::digits;
+    constexpr std::size_t HalfDigits = Digits / 2;
+    static_assert(HalfDigits * 2 == Digits);
+    const UInt h = n >> HalfDigits;
+    constexpr UInt l_mask = fill<UInt, HalfDigits>();
     const UInt l = l_mask & n;
     return std::tuple<UInt, UInt>(h, l);
 }
 
-}
+} // end detail
 
 template <class UInt>
 constexpr auto add(UInt i, UInt j) noexcept
  -> std::enable_if_t<std::is_integral_v<UInt>, std::array<UInt, 2>>
 {
     static_assert(std::is_unsigned_v<UInt>);
-    constexpr std::size_t digits = std::numeric_limits<UInt>::digits;
-    constexpr std::size_t half_digits = digits / 2;
-    static_assert(half_digits * 2 == digits);
+    constexpr std::size_t Digits = std::numeric_limits<UInt>::digits;
+    constexpr std::size_t HalfDigits = Digits / 2;
+    static_assert(HalfDigits * 2 == Digits);
     const auto [ih, il] = detail::hilo(i);
     const auto [jh, jl] = detail::hilo(j);
     const auto [lh, ll] = detail::hilo(il + jl);
     const auto [hh, hl] = detail::hilo(ih + jh + lh);
-    return { hh, ((hl << half_digits) | ll) };
+    return { hh, ((hl << HalfDigits) | ll) };
 }
 
 namespace detail {
@@ -128,7 +131,7 @@ constexpr std::array<UInt, N + 1> add_p(const UInt* i, UInt j)
     }
 }
 
-}
+} // end detail
 
 template <class UInt, std::size_t N>
 constexpr std::conditional_t<N == 0, UInt, std::array<UInt, N + 1>> add(
@@ -161,14 +164,14 @@ constexpr std::array<UInt, ((M > N) ? M : N) + 1> add_p(
         return add_p<M>(i, j[0]);
     } else {
         static_assert(std::is_unsigned_v<UInt>);
-        constexpr std::size_t mn = (M > N) ? M : N;
+        constexpr std::size_t MN = (M > N) ? M : N;
         const std::array<UInt, 2> l = add(i[M - 1], j[N - 1]);
-        const std::array<UInt, mn> h = add_p<M - 1, N - 1>(i, j);
-        return clip<1, mn + 1>(add_p<mn>(h.data(), l[0]), l[1]);
+        const std::array<UInt, MN> h = add_p<M - 1, N - 1>(i, j);
+        return clip<1, MN + 1>(add_p<MN>(h.data(), l[0]), l[1]);
     }
 }
 
-}
+} // end detail
 
 template <class UInt, std::size_t M, std::size_t N>
 constexpr
@@ -198,9 +201,9 @@ constexpr auto mul(UInt i, UInt j) noexcept
  -> std::enable_if_t<std::is_integral_v<UInt>, std::array<UInt, 2>>
 {
     static_assert(std::is_unsigned_v<UInt>);
-    constexpr std::size_t digits = std::numeric_limits<UInt>::digits;
-    constexpr std::size_t half_digits = digits / 2;
-    static_assert(half_digits * 2 == digits);
+    constexpr std::size_t Digits = std::numeric_limits<UInt>::digits;
+    constexpr std::size_t HalfDigits = Digits / 2;
+    static_assert(HalfDigits * 2 == Digits);
     const auto [ih, il] = detail::hilo(i);
     const auto [jh, jl] = detail::hilo(j);
     auto [lh, ll] = detail::hilo(il * jl);
@@ -219,7 +222,7 @@ constexpr auto mul(UInt i, UInt j) noexcept
         lh = pl;
         h += mh;
     }
-    return { h, ((lh << half_digits) + ll) };
+    return { h, ((lh << HalfDigits) + ll) };
 }
 
 namespace detail {
@@ -238,7 +241,7 @@ constexpr std::array<UInt, N + 1> mul_p(const UInt* i, UInt j)
     }
 }
 
-}
+} // end detail
 
 template <class UInt, std::size_t N>
 constexpr
@@ -280,7 +283,7 @@ constexpr std::array<UInt, M + N> mul_p(const UInt* i, const UInt* j)
     }
 }
 
-}
+} // end detail
 
 template <class UInt, std::size_t M, std::size_t N>
 constexpr
