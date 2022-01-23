@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
+option(ROKA_BUILD_TESTS "Whether to build Roka's test" OFF)
+
 project(roka CXX)
 
 add_library(roka INTERFACE)
